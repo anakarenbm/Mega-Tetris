@@ -707,29 +707,33 @@ public class Tetris extends JFrame implements Serializable {
                 //
                 //color int rgb
                 sLinea = finArchivo.readLine();
+                
+                if (!(sLinea.equals("no"))) {//si guardo un tile
+                    System.out.println(sLinea);
 
-                System.out.println(sLinea + " " + x + y);
-                //dimension
-                sLinea = finArchivo.readLine();
-                tile.dimension = Integer.parseInt(sLinea);
+                    //System.out.println(sLinea + " " + x + y);
+                    //dimension
+                    sLinea = finArchivo.readLine();
+                    System.out.println(sLinea);
+                    tile.dimension = Integer.parseInt(sLinea);
 
-                //arreglo de booleans
-                //cols
-                sLinea = finArchivo.readLine();
-                tile.cols = Integer.parseInt(sLinea);
+                    //arreglo de booleans
+                    //cols
+                    sLinea = finArchivo.readLine();
+                    tile.cols = Integer.parseInt(sLinea);
 
-                //rows
-                sLinea = finArchivo.readLine();
-                tile.rows = Integer.parseInt(sLinea);
+                    //rows
+                    sLinea = finArchivo.readLine();
+                    tile.rows = Integer.parseInt(sLinea);
 
-                //getPieceRotation
-                //rotation
-                sLinea = finArchivo.readLine();
-                int tempRotation = Integer.parseInt(sLinea);
+                    //getPieceRotation
+                    //rotation
+                    sLinea = finArchivo.readLine();
+                    int tempRotation = Integer.parseInt(sLinea);
 
-                board.addPiece(tile, x, y, tempRotation);
+                    board.addPiece(tile, x, y, tempRotation);
 
-                //}
+                }
             }
         }
 
@@ -751,7 +755,7 @@ public class Tetris extends JFrame implements Serializable {
         fpwArchivo.println(getPieceCol());//current column 
         fpwArchivo.println(getPieceRow());//current row
         fpwArchivo.println(getPieceRotation());//current rotation
-
+        
         for (int x = 0; x < board.COL_COUNT; x++) {
             for (int y = board.HIDDEN_ROW_COUNT; y < board.ROW_COUNT; y++) {
                 TileType tile = board.getTile(x, y);
@@ -763,7 +767,10 @@ public class Tetris extends JFrame implements Serializable {
                     //this.tiles = tiles;
                     fpwArchivo.println(tile.getCols());//cols
                     fpwArchivo.println(tile.getRows());//rows
-                    fpwArchivo.println(getPieceRotation());//rows
+                    fpwArchivo.println(getPieceRotation());//rotation
+                }
+                else {
+                    fpwArchivo.println("no");
                 }
             }
         }
