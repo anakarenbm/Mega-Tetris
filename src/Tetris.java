@@ -33,7 +33,6 @@ import javax.swing.JFrame;
  *
  */
 public class Tetris extends JFrame implements Serializable {
-<<<<<<< HEAD
 	
 	/**
 	 * The Serial Version UID.
@@ -159,128 +158,6 @@ public class Tetris extends JFrame implements Serializable {
         
         private SoundClip souClick;
         
-  
-=======
-
-    /**
-     * The Serial Version UID.
-     */
-    private static final long serialVersionUID = -4722429764792514382L;
-
-    /**
-     * The number of milliseconds per frame.
-     */
-    private static final long FRAME_TIME = 1000L / 50L;
-
-    /**
-     * The number of pieces that exist.
-     */
-    private static final int TYPE_COUNT = TileType.values().length;
-
-    /**
-     * The BoardPanel instance.
-     */
-    private BoardPanel board;
-
-    /**
-     * The SidePanel instance.
-     */
-    private SidePanel side;
-
-    /**
-     * Whether or not the game is paused.
-     */
-    private boolean isPaused;
-
-    /**
-     * Whether or not we've played a game yet. This is set to true initially and
-     * then set to false when the game starts.
-     */
-    private boolean isNewGame;
-
-    /**
-     * Whether or not the game is over.
-     */
-    private boolean isGameOver;
-
-    /**
-     * The current level we're on.
-     */
-    private int level;
-
-    /**
-     * The current score.
-     */
-    private int score;
-
-    /**
-     * The random number generator. This is used to spit out pieces randomly.
-     */
-    private Random random;
-
-    /**
-     * The clock that handles the update logic.
-     */
-    transient private Clock logicTimer;
-
-    /**
-     * The current type of tile.
-     */
-    private TileType currentType;
-
-    /**
-     * The next type of tile.
-     */
-    private TileType nextType;
-
-    /**
-     * The current column of our tile.
-     */
-    private int currentCol;
-
-    /**
-     * Name of the file where the game's progress is saved.
-     */
-    private String nombreArchivo;    //Nombre del archivo.
-
-    /**
-     * The current row of our tile.
-     */
-    private int currentRow;
-
-    /**
-     * The current rotation of our tile.
-     */
-    private int currentRotation;
-
-    /**
-     * Ensures that a certain amount of time passes after a piece is spawned
-     * before we can drop it.
-     */
-    private int dropCooldown;
-
-    /**
-     * The speed of the game.
-     */
-    private float gameSpeed;
-
-    /**
-     * Background Music.
-     */
-    transient private SoundClip souBackgroundB;
-
-    /**
-     * clockwise turn Music.
-     */
-    transient private SoundClip souTurnCW;
-
-    /**
-     * Counter clockwise turn Music.
-     */
-    transient private SoundClip souTurnCCW;
->>>>>>> parent of a153f3e... key listener
-
-
 	/**
 	 * Creates a new Tetris instance. Sets up the window's properties,
 	 * and adds a controller listener.
@@ -322,14 +199,8 @@ public class Tetris extends JFrame implements Serializable {
 
                 nombreArchivo = "LoadFile.txt";//nombre del archivo
                 
-                
-
-
-              
-
 		/*
 		 * Adds a custom anonymous KeyListener to the frame.
-<<<<<<< HEAD
 		 */
 		addKeyListener(new KeyAdapter() {
 			
@@ -465,147 +336,6 @@ public class Tetris extends JFrame implements Serializable {
                         }
 
                     }
-=======
-         */
-        addKeyListener(new KeyAdapter() {
-
-            @Override
-            public void keyPressed(KeyEvent e) {
-
-                switch (e.getKeyCode()) {
-
-                    /*
-                    * Drop - When pressed, we check to see that the game is not
-                    * paused and that there is no drop cooldown, then set the
-                    * logic timer to run at a speed of 25 cycles per second.
-                     */
-                    case KeyEvent.VK_S:
-                        if (!isPaused && dropCooldown == 0) {
-                            logicTimer.setCyclesPerSecond(25.0f);
-                        }
-                        break;
-
-                    /*
-                     * Move Left - When pressed, we check to see that the game is
-                    * not paused and that the position to the left of the current
-                     * position is valid. If so, we decrement the current column by 1.
-                     */
-                    case KeyEvent.VK_A:
-                        if (!isPaused && board.isValidAndEmpty(currentType, 
-                                currentCol - 1, currentRow, currentRotation)) {
-                                    currentCol--;
-                        }
-                        break;
-
-                    /*
-                    * Move Right - When pressed, we check to see that the game is
-                    * not paused and that the position to the right of the current
-                     * position is valid. If so, we increment the current column by 1.
-                     */
-                    case KeyEvent.VK_D:
-                        if (!isPaused && board.isValidAndEmpty(currentType, 
-                                currentCol + 1, currentRow, currentRotation)) {
-                                    currentCol++;
-                        }
-                        break;
-
-                    /*
-                     * Rotate Anticlockwise - When pressed, check to see that the game is not paused
-                     * and then attempt to rotate the piece anticlockwise. Because of the size and
-                     * complexity of the rotation code, as well as it's similarity to clockwise
-                     * rotation, the code for rotating the piece is handled in another method.
-                     */
-                    case KeyEvent.VK_Q:
-                        if (!isPaused) {
-                            rotatePiece((currentRotation == 0) ? 3 : 
-                                    currentRotation - 1);
-                            souTurnCCW.play();
-                        }
-                        break;
-
-                    /*
-                    * Rotate Clockwise - When pressed, check to see that the game is not paused
-                     * and then attempt to rotate the piece clockwise. Because of the size and
-                     * complexity of the rotation code, as well as it's similarity to anticlockwise
-                     * rotation, the code for rotating the piece is handled in another method.
-                     */
-                    case KeyEvent.VK_E:
-                        if (!isPaused) {
-                            rotatePiece((currentRotation == 3) ? 0 : 
-                                    currentRotation + 1);
-                            souTurnCW.play();
-                        }
-                        break;
-
-                    /*
-                    * Pause Game - When pressed, check to see that we're currently playing a game.
-                     * If so, toggle the pause variable and update the logic timer to reflect this
-                     * change, otherwise the game will execute a huge number of updates and essentially
-                     * cause an instant game over when we unpause if we stay paused for more than a
-                     * minute or so.
-                     */
-                    case KeyEvent.VK_P:
-                        if (!isGameOver && !isNewGame) {
-                            isPaused = !isPaused;
-                            logicTimer.setPaused(isPaused);
-                        }
-                        break;
-
-                    /*
-                    * Start Game - When pressed, check to see that we're in either a game over or new
-                     * game state. If so, reset the game.
-                     */
-                    case KeyEvent.VK_ENTER:
-                        if (isGameOver || isNewGame) {
-                            resetGame();
-                        }
-                        break;
-
-                }
-            }
-
-            @Override
-            public void keyReleased(KeyEvent e) {
-
-                switch (e.getKeyCode()) {
-
-                    /*
-                     * Drop - When released, we set the speed of the logic timer
-                     * back to whatever the current game speed is and clear out
-                     * any cycles that might still be elapsed.
-                     */
-                    case KeyEvent.VK_S:
-                        logicTimer.setCyclesPerSecond(gameSpeed);
-                        logicTimer.reset();
-                        break;
-                    /*
-                     * Save Game - When pressed, saves the current
-                     *       process of the game.
-                     */
-                    case KeyEvent.VK_G:
-                        try {
-                            grabaArchivo();
-                        } catch (IOException ex) {
-                            System.out.println("Error en " + ex.toString());
-                        }
-                        break;
-
-                    /*
-                    * Load Game - When pressed, starts the game 
-                        based on what is saved.
-                     */
-                    case KeyEvent.VK_C:
-                        try {
-                            leeArchivo();
-                        } catch (IOException ex) {
-                            System.out.println("Error en " + ex.toString());
-                        }
-                        break;
-
-                }
-
-            }
->>>>>>> parent of a153f3e... key listener
 
         });
 
@@ -920,108 +650,7 @@ public class Tetris extends JFrame implements Serializable {
 		return currentRotation;
 	}
         
-        /**
-=======
-         */
-        if (board.isValidAndEmpty(currentType, newColumn, newRow, newRotation)){
-            currentRotation = newRotation;
-            currentRow = newRow;
-            currentCol = newColumn;
-        }
-    }
-
-    /**
-     * Checks to see whether or not the game is paused.
-     *
-     * @return Whether or not the game is paused.
-     */
-    public boolean isPaused() {
-        return isPaused;
-    }
-
-    /**
-     * Checks to see whether or not the game is over.
-     *
-     * @return Whether or not the game is over.
-     */
-    public boolean isGameOver() {
-        return isGameOver;
-    }
-
-    /**
-     * Checks to see whether or not we're on a new game.
-     *
-     * @return Whether or not this is a new game.
-     */
-    public boolean isNewGame() {
-        return isNewGame;
-    }
-
-    /**
-     * Gets the current score.
-     *
-     * @return The score.
-     */
-    public int getScore() {
-        return score;
-    }
-
-    /**
-     * Gets the current level.
-     *
-     * @return The level.
-     */
-    public int getLevel() {
-        return level;
-    }
-
-    /**
-     * Gets the current type of piece we're using.
-     *
-     * @return The piece type.
-     */
-    public TileType getPieceType() {
-        return currentType;
-    }
-
-    /**
-     * Gets the next type of piece we're using.
-     *
-     * @return The next piece.
-     */
-    public TileType getNextPieceType() {
-        return nextType;
-    }
-
-    /**
-     * Gets the column of the current piece.
-     *
-     * @return The column.
-     */
-    public int getPieceCol() {
-        return currentCol;
-    }
-
-    /**
-     * Gets the row of the current piece.
-     *
-     * @return The row.
-     */
-    public int getPieceRow() {
-        return currentRow;
-    }
-
-    /**
-     * Gets the rotation of the current piece.
-     *
-     * @return The rotation.
-     */
-    public int getPieceRotation() {
-        return currentRotation;
-    }
-
-    /**
->>>>>>> parent of a153f3e... key listener
+    /*
      * Metodo que lee a informacion de un archivo y lo agrega a un vector.
      *
      * @throws IOException
@@ -1141,20 +770,8 @@ public class Tetris extends JFrame implements Serializable {
         fpwArchivo.close();
     }
 
-<<<<<<< HEAD
 
-	/**
-	 * Entry-point of the game. Responsible for creating and starting a new
-	 * game instance.
-	 * @param args Unused.
-	 */
-	public static void main(String[] args) {
-		Tetris tetris = new Tetris();
-		tetris.startGame();
-                
-               
-	}
-=======
+
     /**
      * Entry-point of the game. Responsible for creating and starting a new game
      * instance.
@@ -1166,6 +783,6 @@ public class Tetris extends JFrame implements Serializable {
         tetris.startGame();
 
     }
->>>>>>> parent of a153f3e... key listener
+
 
 }
