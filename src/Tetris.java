@@ -5,6 +5,7 @@ import java.awt.BorderLayout;
 import java.awt.Toolkit;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
@@ -33,7 +34,7 @@ import javax.swing.JFrame;
  * @author Brendan Jones
  *
  */
-public class Tetris extends JFrame implements Serializable {
+public class Tetris extends JFrame implements Serializable, KeyListener {
 
     /**
      * The Serial Version UID.
@@ -198,147 +199,8 @@ public class Tetris extends JFrame implements Serializable {
         /*
 		 * Adds a custom anonymous KeyListener to the frame.
          */
-        addKeyListener(new KeyAdapter() {
-
-            @Override
-            public void keyPressed(KeyEvent e) {
-
-                switch (e.getKeyCode()) {
-
-                    /*
-                    * Drop - When pressed, we check to see that the game is not
-                    * paused and that there is no drop cooldown, then set the
-                    * logic timer to run at a speed of 25 cycles per second.
-                     */
-                    case KeyEvent.VK_S:
-                        if (!isPaused && dropCooldown == 0) {
-                            logicTimer.setCyclesPerSecond(25.0f);
-                        }
-                        break;
-
-                    /*
-                     * Move Left - When pressed, we check to see that the game is
-                    * not paused and that the position to the left of the current
-                     * position is valid. If so, we decrement the current column by 1.
-                     */
-                    case KeyEvent.VK_A:
-                        if (!isPaused && board.isValidAndEmpty(currentType, 
-                                currentCol - 1, currentRow, currentRotation)) {
-                                    currentCol--;
-                        }
-                        break;
-
-                    /*
-                    * Move Right - When pressed, we check to see that the game is
-                    * not paused and that the position to the right of the current
-                     * position is valid. If so, we increment the current column by 1.
-                     */
-                    case KeyEvent.VK_D:
-                        if (!isPaused && board.isValidAndEmpty(currentType, 
-                                currentCol + 1, currentRow, currentRotation)) {
-                                    currentCol++;
-                        }
-                        break;
-
-                    /*
-                     * Rotate Anticlockwise - When pressed, check to see that the game is not paused
-                     * and then attempt to rotate the piece anticlockwise. Because of the size and
-                     * complexity of the rotation code, as well as it's similarity to clockwise
-                     * rotation, the code for rotating the piece is handled in another method.
-                     */
-                    case KeyEvent.VK_Q:
-                        if (!isPaused) {
-                            rotatePiece((currentRotation == 0) ? 3 : 
-                                    currentRotation - 1);
-                            souTurnCCW.play();
-                        }
-                        break;
-
-                    /*
-                    * Rotate Clockwise - When pressed, check to see that the game is not paused
-                     * and then attempt to rotate the piece clockwise. Because of the size and
-                     * complexity of the rotation code, as well as it's similarity to anticlockwise
-                     * rotation, the code for rotating the piece is handled in another method.
-                     */
-                    case KeyEvent.VK_E:
-                        if (!isPaused) {
-                            rotatePiece((currentRotation == 3) ? 0 : 
-                                    currentRotation + 1);
-                            souTurnCW.play();
-                        }
-                        break;
-
-                    /*
-                    * Pause Game - When pressed, check to see that we're currently playing a game.
-                     * If so, toggle the pause variable and update the logic timer to reflect this
-                     * change, otherwise the game will execute a huge number of updates and essentially
-                     * cause an instant game over when we unpause if we stay paused for more than a
-                     * minute or so.
-                     */
-                    case KeyEvent.VK_P:
-                        if (!isGameOver && !isNewGame) {
-                            isPaused = !isPaused;
-                            logicTimer.setPaused(isPaused);
-                        }
-                        break;
-
-                    /*
-                    * Start Game - When pressed, check to see that we're in either a game over or new
-                     * game state. If so, reset the game.
-                     */
-                    case KeyEvent.VK_ENTER:
-                        if (isGameOver || isNewGame) {
-                            resetGame();
-                        }
-                        break;
-
-                }
-            }
-
-            @Override
-            public void keyReleased(KeyEvent e) {
-
-                switch (e.getKeyCode()) {
-
-                    /*
-                     * Drop - When released, we set the speed of the logic timer
-                     * back to whatever the current game speed is and clear out
-                     * any cycles that might still be elapsed.
-                     */
-                    case KeyEvent.VK_S:
-                        logicTimer.setCyclesPerSecond(gameSpeed);
-                        logicTimer.reset();
-                        break;
-                    /*
-                     * Save Game - When pressed, saves the current
-                     *       process of the game.
-                     */
-                    case KeyEvent.VK_G:
-                        try {
-                            grabaArchivo();
-                        } catch (IOException ex) {
-                            System.out.println("Error en " + ex.toString());
-                        }
-                        break;
-
-                    /*
-                    * Load Game - When pressed, starts the game 
-                        based on what is saved.
-                     */
-                    case KeyEvent.VK_C:
-                        try {
-                            leeArchivo();
-                        } catch (IOException ex) {
-                            System.out.println("Error en " + ex.toString());
-                        }
-                        break;
-
-                }
-
-            }
-
-        });
-
+        addKeyListener(this);
+        
         /*
 	 * Here we resize the frame to hold the BoardPanel and SidePanel instances,
 	 * center the window on the screen, and show it to the user.
@@ -572,6 +434,7 @@ public class Tetris extends JFrame implements Serializable {
             currentCol = newColumn;
         }
     }
+    
 
     /**
      * Checks to see whether or not the game is paused.
@@ -662,6 +525,8 @@ public class Tetris extends JFrame implements Serializable {
     public int getPieceRotation() {
         return currentRotation;
     }
+    
+    
 
     /**
      * Metodo que lee a informacion de un archivo y lo agrega a un vector.
@@ -776,6 +641,8 @@ public class Tetris extends JFrame implements Serializable {
         }
         fpwArchivo.close();
     }
+    
+    
 
     /**
      * Entry-point of the game. Responsible for creating and starting a new game
@@ -787,6 +654,141 @@ public class Tetris extends JFrame implements Serializable {
         Tetris tetris = new Tetris();
         tetris.startGame();
 
+    }
+
+    @Override
+    public void keyTyped(KeyEvent e) {
+        
+    }
+
+    @Override
+    public void keyPressed(KeyEvent e) {
+        
+        switch (e.getKeyCode()) {
+
+            /*
+				 * Drop - When pressed, we check to see that the game is not
+				 * paused and that there is no drop cooldown, then set the
+				 * logic timer to run at a speed of 25 cycles per second.
+             */
+            case KeyEvent.VK_S:
+                if (!isPaused && dropCooldown == 0) {
+                    logicTimer.setCyclesPerSecond(25.0f);
+                }
+                break;
+
+            /*
+				 * Move Left - When pressed, we check to see that the game is
+				 * not paused and that the position to the left of the current
+				 * position is valid. If so, we decrement the current column by 1.
+             */
+            case KeyEvent.VK_A:
+                if (!isPaused && board.isValidAndEmpty(currentType, currentCol - 1, currentRow, currentRotation)) {
+                    currentCol--;
+                }
+                break;
+
+            /*
+				 * Move Right - When pressed, we check to see that the game is
+				 * not paused and that the position to the right of the current
+				 * position is valid. If so, we increment the current column by 1.
+             */
+            case KeyEvent.VK_D:
+                if (!isPaused && board.isValidAndEmpty(currentType, currentCol + 1, currentRow, currentRotation)) {
+                    currentCol++;
+                }
+                break;
+
+            /*
+				 * Rotate Anticlockwise - When pressed, check to see that the game is not paused
+				 * and then attempt to rotate the piece anticlockwise. Because of the size and
+				 * complexity of the rotation code, as well as it's similarity to clockwise
+				 * rotation, the code for rotating the piece is handled in another method.
+             */
+            case KeyEvent.VK_Q:
+                if (!isPaused) {
+                    rotatePiece((currentRotation == 0) ? 3 : currentRotation - 1);
+                    souTurnCCW.play();
+                }
+                break;
+
+            /*
+			     * Rotate Clockwise - When pressed, check to see that the game is not paused
+				 * and then attempt to rotate the piece clockwise. Because of the size and
+				 * complexity of the rotation code, as well as it's similarity to anticlockwise
+				 * rotation, the code for rotating the piece is handled in another method.
+             */
+            case KeyEvent.VK_E:
+                if (!isPaused) {
+                    rotatePiece((currentRotation == 3) ? 0 : currentRotation + 1);
+                    souTurnCW.play();
+                }
+                break;
+
+            /*
+				 * Pause Game - When pressed, check to see that we're currently playing a game.
+				 * If so, toggle the pause variable and update the logic timer to reflect this
+				 * change, otherwise the game will execute a huge number of updates and essentially
+				 * cause an instant game over when we unpause if we stay paused for more than a
+				 * minute or so.
+             */
+            case KeyEvent.VK_P:
+                if (!isGameOver && !isNewGame) {
+                    isPaused = !isPaused;
+                    logicTimer.setPaused(isPaused);
+                }
+                break;
+
+            /*
+				 * Start Game - When pressed, check to see that we're in either a game over or new
+				 * game state. If so, reset the game.
+             */
+            case KeyEvent.VK_ENTER:
+                if (isGameOver || isNewGame) {
+                    resetGame();
+                }
+                break;
+
+        }
+    }
+
+    @Override
+    public void keyReleased(KeyEvent e) {
+        switch (e.getKeyCode()) {
+
+            /*
+             * Drop - When released, we set the speed of the logic timer
+             * back to whatever the current game speed is and clear out
+             * any cycles that might still be elapsed.
+             */
+            case KeyEvent.VK_S:
+                logicTimer.setCyclesPerSecond(gameSpeed);
+                logicTimer.reset();
+                break;
+            /*
+	     * Save Game - When pressed, saves the current
+             *       process of the game.
+             */
+            case KeyEvent.VK_G:
+                try {
+                    grabaArchivo();
+                } catch (IOException ex) {
+                    System.out.println("Error en " + ex.toString());
+                }
+                break;
+
+            /*
+             * Load Game - When pressed, starts the game based on what is saved.
+             */
+            case KeyEvent.VK_C:
+                try {
+                    leeArchivo();
+                } catch (IOException ex) {
+                    System.out.println("Error en " + ex.toString());
+                }
+                break;
+
+        }
     }
 
 }
