@@ -278,13 +278,48 @@ public class BoardPanel extends JPanel implements Serializable  {
 	 * @param y The row.
 	 * @return The tile.
 	 */
-	public TileType getTile(int x, int y) {
-		return tiles[y][x];
-	}
-	
-	@Override
-	public void paintComponent(Graphics g) {
-		super.paintComponent(g);
+    public TileType getTile(int x, int y) {
+        return tiles[y][x];
+    }
+
+    public int[][] getState() {
+        int State[][] = new int[tiles.length][tiles[0].length];
+
+        for (int iI = 0; iI < tiles.length; iI++) {
+            for (int iJ = 0; iJ < tiles[0].length; iJ++) {
+
+                if (tiles[iI][iJ] != null) {
+                    State[iI][iJ] = tiles[iI][iJ].getType();
+                } else {
+                    State[iI][iJ] = -1;
+                }
+            }
+        }
+        return State;
+    }
+    
+    public void setState(int[][] State){
+            
+            tiles = new TileType [State.length][State[0].length];
+            
+            for(int iC = 0;iC<State.length;iC++){
+                for(int iJ = 0;iJ<State[0].length;iJ++){
+                    
+                    if(State[iC][iJ] != -1){
+                    tiles[iC][iJ] = TileType.values()[State[iC][iJ]];
+                    }
+                    
+                    else{
+                        tiles[iC][iJ] = null;
+                    }
+                }
+            }
+        }
+    
+
+    @Override
+    public void paintComponent(Graphics g) {
+        super.paintComponent(g);
 		
 		//This helps simplify the positioning of things.
 		g.translate(BORDER_WIDTH, BORDER_WIDTH);

@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
+import java.io.RandomAccessFile;
 import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.Random;
@@ -193,7 +194,7 @@ public class Tetris extends JFrame implements Serializable {
         /*
 		* Initialize File Name
          */
-        nombreArchivo = "LoadFile.txt";//nombre del archivo
+        nombreArchivo = "LoadFile.dat";//nombre del archivo
 
         /*
 		 * Adds a custom anonymous KeyListener to the frame.
@@ -222,9 +223,9 @@ public class Tetris extends JFrame implements Serializable {
                      * position is valid. If so, we decrement the current column by 1.
                      */
                     case KeyEvent.VK_A:
-                        if (!isPaused && board.isValidAndEmpty(currentType, 
+                        if (!isPaused && board.isValidAndEmpty(currentType,
                                 currentCol - 1, currentRow, currentRotation)) {
-                                    currentCol--;
+                            currentCol--;
                         }
                         break;
 
@@ -234,9 +235,9 @@ public class Tetris extends JFrame implements Serializable {
                      * position is valid. If so, we increment the current column by 1.
                      */
                     case KeyEvent.VK_D:
-                        if (!isPaused && board.isValidAndEmpty(currentType, 
+                        if (!isPaused && board.isValidAndEmpty(currentType,
                                 currentCol + 1, currentRow, currentRotation)) {
-                                    currentCol++;
+                            currentCol++;
                         }
                         break;
 
@@ -248,8 +249,8 @@ public class Tetris extends JFrame implements Serializable {
                      */
                     case KeyEvent.VK_Q:
                         if (!isPaused) {
-                            rotatePiece((currentRotation == 0) ? 3 : 
-                                    currentRotation - 1);
+                            rotatePiece((currentRotation == 0) ? 3
+                                    : currentRotation - 1);
                             souTurnCCW.play();
                         }
                         break;
@@ -262,8 +263,8 @@ public class Tetris extends JFrame implements Serializable {
                      */
                     case KeyEvent.VK_E:
                         if (!isPaused) {
-                            rotatePiece((currentRotation == 3) ? 0 : 
-                                    currentRotation + 1);
+                            rotatePiece((currentRotation == 3) ? 0
+                                    : currentRotation + 1);
                             souTurnCW.play();
                         }
                         break;
@@ -410,7 +411,7 @@ public class Tetris extends JFrame implements Serializable {
         /*
             * Check to see if the piece's position can move down to the next row.
          */
-        if (board.isValidAndEmpty(currentType, currentCol, currentRow + 1, 
+        if (board.isValidAndEmpty(currentType, currentCol, currentRow + 1,
                 currentRotation)) {
             //Increment the current row if it's safe to do so.
             currentRow++;
@@ -419,7 +420,7 @@ public class Tetris extends JFrame implements Serializable {
                 * We've either reached the bottom of the board, or landed on another piece, so
 		* we need to add the piece to the board.
              */
-            board.addPiece(currentType, currentCol, currentRow, 
+            board.addPiece(currentType, currentCol, currentRow,
                     currentRotation);
 
             /*
@@ -506,7 +507,7 @@ public class Tetris extends JFrame implements Serializable {
             * If the spawn point is invalid, we need to pause the game and flag that we've lost
              * because it means that the pieces on the board have gotten too high.
          */
-        if (!board.isValidAndEmpty(currentType, currentCol, currentRow, 
+        if (!board.isValidAndEmpty(currentType, currentCol, currentRow,
                 currentRotation)) {
             this.isGameOver = true;
             souBackgroundB.stop();
@@ -544,10 +545,10 @@ public class Tetris extends JFrame implements Serializable {
          */
         if (currentCol < -left) {
             newColumn -= currentCol - left;
-        } else if (currentCol + currentType.getDimension() - right >= 
-                BoardPanel.COL_COUNT) {
-            newColumn -= (currentCol + currentType.getDimension() - right) - 
-                    BoardPanel.COL_COUNT + 1;
+        } else if (currentCol + currentType.getDimension() - right
+                >= BoardPanel.COL_COUNT) {
+            newColumn -= (currentCol + currentType.getDimension() - right)
+                    - BoardPanel.COL_COUNT + 1;
         }
 
         /*
@@ -556,17 +557,17 @@ public class Tetris extends JFrame implements Serializable {
          */
         if (currentRow < -top) {
             newRow -= currentRow - top;
-        } else if (currentRow + currentType.getDimension() - bottom >= 
-                BoardPanel.ROW_COUNT) {
-            newRow -= (currentRow + currentType.getDimension() - bottom) - 
-                    BoardPanel.ROW_COUNT + 1;
+        } else if (currentRow + currentType.getDimension() - bottom
+                >= BoardPanel.ROW_COUNT) {
+            newRow -= (currentRow + currentType.getDimension() - bottom)
+                    - BoardPanel.ROW_COUNT + 1;
         }
 
         /*
 		 * Check to see if the new position is acceptable. If it is, update the rotation and
 		 * position of the piece.
          */
-        if (board.isValidAndEmpty(currentType, newColumn, newRow, newRotation)){
+        if (board.isValidAndEmpty(currentType, newColumn, newRow, newRotation)) {
             currentRotation = newRotation;
             currentRow = newRow;
             currentCol = newColumn;
@@ -669,76 +670,36 @@ public class Tetris extends JFrame implements Serializable {
      * @throws IOException
      */
     public void leeArchivo() throws IOException {
-        BufferedReader finArchivo;
-        try {
-            finArchivo = new BufferedReader(new FileReader(nombreArchivo));
-        } catch (FileNotFoundException e) {
+        RandomAccessFile finArchivo = new 
+                                       RandomAccessFile(nombreArchivo , "rw");
+        
+        this.level = finArchivo.readInt();
+        this.score = finArchivo.readInt();
+        this.currentCol = finArchivo.readInt();
+        this.currentRow = finArchivo.readInt();
+        this.currentRotation = finArchivo.readInt();
+        this.currentType = TileType.values()[finArchivo.readInt()];
+        this.nextType = TileType.values()[finArchivo.readInt()];
+        this.gameSpeed = finArchivo.readFloat();
+        this.isGameOver = finArchivo.readBoolean();
+        this.isNewGame = finArchivo.readBoolean();
 
-        }
-        finArchivo = new BufferedReader(new FileReader(nombreArchivo));
+        logicTimer.reset();
+        logicTimer.setCyclesPerSecond(gameSpeed);
 
-        board.clear(); //clear el board
+        int i = finArchivo.readInt();
+        int j = finArchivo.readInt();
+        int matBoard[][] = new int[i][j];
 
-        // read nivel
-        String sLinea = finArchivo.readLine();
-        level = Integer.parseInt(sLinea);
-
-        // read currentType
-        sLinea = finArchivo.readLine();
-
-        //read next Type
-        sLinea = finArchivo.readLine();
-
-        //read column
-        sLinea = finArchivo.readLine();
-        currentCol = Integer.parseInt(sLinea);
-
-        //read row
-        sLinea = finArchivo.readLine();
-        currentRow = Integer.parseInt(sLinea);
-
-        // read rotation
-        sLinea = finArchivo.readLine();
-        currentRotation = Integer.parseInt(sLinea);
-
-        for (int x = 0; x < board.COL_COUNT; x++) {
-            for (int y = board.HIDDEN_ROW_COUNT; y < board.ROW_COUNT; y++) {
-                TileType tile = board.getTile(x, y);
-                //
-                //color int rgb
-                sLinea = finArchivo.readLine();
-                
-                if (!(sLinea.equals("no"))) {//si guardo un tile
-                    System.out.println(sLinea);
-
-                    //System.out.println(sLinea + " " + x + y);
-                    //dimension
-                    sLinea = finArchivo.readLine();
-                    System.out.println(sLinea);
-                    tile.dimension = Integer.parseInt(sLinea);
-
-                    //arreglo de booleans
-                    //cols
-                    sLinea = finArchivo.readLine();
-                    tile.cols = Integer.parseInt(sLinea);
-
-                    //rows
-                    sLinea = finArchivo.readLine();
-                    tile.rows = Integer.parseInt(sLinea);
-
-                    //getPieceRotation
-                    //rotation
-                    sLinea = finArchivo.readLine();
-                    int tempRotation = Integer.parseInt(sLinea);
-
-                    board.addPiece(tile, x, y, tempRotation);
-
-                }
+        for (int iR = 0; iR < i; iR++) {
+            for (int iC = 0; iC < j; iC++) {
+                matBoard[iR][iC] = finArchivo.readInt();
             }
         }
-
+        board.clear();
+            board.setState(matBoard); 
         finArchivo.close();
-
+        
     }
 
     /**
@@ -747,36 +708,35 @@ public class Tetris extends JFrame implements Serializable {
      * @throws IOException
      */
     public void grabaArchivo() throws IOException {
-        PrintWriter fpwArchivo = new PrintWriter(new FileWriter(nombreArchivo));
 
-        fpwArchivo.println(getLevel());//level
-        fpwArchivo.println(getPieceType());//current pieceType
-        fpwArchivo.println(getNextPieceType());//next piece Type
-        fpwArchivo.println(getPieceCol());//current column 
-        fpwArchivo.println(getPieceRow());//current row
-        fpwArchivo.println(getPieceRotation());//current rotation
+        RandomAccessFile fpwArchivo = new 
+                                       RandomAccessFile(nombreArchivo , "rw"); 
         
-        for (int x = 0; x < board.COL_COUNT; x++) {
-            for (int y = board.HIDDEN_ROW_COUNT; y < board.ROW_COUNT; y++) {
-                TileType tile = board.getTile(x, y);
-                if (tile != null) {
-                    //GUARDAR tile                    
-                    fpwArchivo.println(tile.getBaseColor().getRGB());//color int rgb
-                    fpwArchivo.println(tile.getDimension());//dimension
-                    //arreglo de booleans
-                    //this.tiles = tiles;
-                    fpwArchivo.println(tile.getCols());//cols
-                    fpwArchivo.println(tile.getRows());//rows
-                    fpwArchivo.println(getPieceRotation());//rotation
+        fpwArchivo.writeInt(level);
+        fpwArchivo.writeInt(score);
+        fpwArchivo.writeInt(currentCol);
+        fpwArchivo.writeInt(currentRow);
+        fpwArchivo.writeInt(currentRotation);
+        fpwArchivo.writeInt(currentType.getType());
+        fpwArchivo.writeInt(nextType.getType());
+        fpwArchivo.writeFloat(gameSpeed);
+        fpwArchivo.writeBoolean(isGameOver);
+        fpwArchivo.writeBoolean(isNewGame);
+        
+        
+        int matStatus[][] = board.getState();
+            
+            fpwArchivo.writeInt(matStatus.length);
+            fpwArchivo.writeInt(matStatus[0].length);
+            for(int iR = 0; iR < matStatus.length; iR++){
+                for(int iC = 0; iC < matStatus[0].length; iC++){
+                    fpwArchivo.writeInt (matStatus[iR][iC]);
                 }
-                else {
-                    fpwArchivo.println("no");
-                }
-            }
-        }
+            }   
+
         fpwArchivo.close();
     }
-
+    
     /**
      * Entry-point of the game. Responsible for creating and starting a new game
      * instance.

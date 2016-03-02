@@ -38,7 +38,7 @@ public enum TileType {
 			false,	true,	false,	false,
 			false,	true,	false,	false,
 		}
-	}),
+	},0),
 	
 	/**
 	 * Piece TypeJ.
@@ -65,7 +65,7 @@ public enum TileType {
 			false,	true,	false,
 			true,	true,	false,
 		}
-	}),
+	},1),
 	
 	/**
 	 * Piece TypeL.
@@ -92,7 +92,7 @@ public enum TileType {
 			false,	true,	false,
 			false,	true,	false,
 		}
-	}),
+	},2),
 	
 	/**
 	 * Piece TypeO.
@@ -115,7 +115,7 @@ public enum TileType {
 			true,	true,
 			true,	true,
 		}
-	}),
+	},3),
 	
 	/**
 	 * Piece TypeS.
@@ -142,7 +142,7 @@ public enum TileType {
 			true,	true,	false,
 			false,	true,	false,
 		}
-	}),
+	},4),
 	
 	/**
 	 * Piece TypeT.
@@ -169,7 +169,7 @@ public enum TileType {
 			true,	true,	false,
 			false,	true,	false,
 		}
-	}),
+	},5),
 	
 	/**
 	 * Piece TypeZ.
@@ -196,7 +196,7 @@ public enum TileType {
 			true,	true,	false,
 			true,	false,	false,
 		}
-	});
+	},6);
 		
 	/**
 	 * The base color of tiles of this type.
@@ -246,6 +246,8 @@ public enum TileType {
 	 * The tiles for this piece. Each piece has an array of tiles for each rotation.
 	 */
 	private boolean[][] tiles;
+        
+        private int iType;
 	
 	/**
 	 * Creates a new TileType.
@@ -256,7 +258,7 @@ public enum TileType {
 	 * @param tiles The tiles.
 	 */
 	private TileType(Color color, int dimension, int cols, int rows, 
-                boolean[][] tiles) {
+                boolean[][] tiles, int iType) {
 		this.baseColor = color;
 		this.lightColor = color.brighter();
 		this.darkColor = color.darker();
@@ -264,9 +266,10 @@ public enum TileType {
 		this.tiles = tiles;
 		this.cols = cols;
 		this.rows = rows;
-		
+		this.iType = iType;
 		this.spawnCol = 5 - (dimension >> 1);
 		this.spawnRow = getTopInset(0);
+                
                 
                 
 	}
@@ -337,6 +340,10 @@ public enum TileType {
 		return cols;
 	}
 	
+        public int getType() {
+		return iType;
+	}
+        
 	/**
 	 * Checks to see if the given coordinates and rotation contain a tile.
 	 * @param x The x coordinate of the tile.
