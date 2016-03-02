@@ -81,12 +81,14 @@ public class BoardPanel extends JPanel implements Serializable  {
 	/**
 	 * The total width of the panel.
 	 */
-	public static final int PANEL_WIDTH = COL_COUNT * TILE_SIZE + BORDER_WIDTH * 2;
+	public static final int PANEL_WIDTH = COL_COUNT * TILE_SIZE + 
+                BORDER_WIDTH * 2;
 	
 	/**
 	 * The total height of the panel.
 	 */
-	public static final int PANEL_HEIGHT = VISIBLE_ROW_COUNT * TILE_SIZE + BORDER_WIDTH * 2;
+	public static final int PANEL_HEIGHT = VISIBLE_ROW_COUNT * TILE_SIZE + 
+                BORDER_WIDTH * 2;
 	
 	/**
 	 * The larger font to display.
@@ -143,15 +145,18 @@ public class BoardPanel extends JPanel implements Serializable  {
 	 * @param rotation The rotation of the piece.
 	 * @return Whether or not the position is valid.
 	 */
-	public boolean isValidAndEmpty(TileType type, int x, int y, int rotation) {
+	public boolean isValidAndEmpty(TileType type, int x, int y, 
+                int rotation) {
 				
 		//Ensure the piece is in a valid column.
-		if(x < -type.getLeftInset(rotation) || x + type.getDimension() - type.getRightInset(rotation) >= COL_COUNT) {
+		if(x < -type.getLeftInset(rotation) || x + type.getDimension() 
+                        - type.getRightInset(rotation) >= COL_COUNT) {
 			return false;
 		}
 		
 		//Ensure the piece is in a valid row.
-		if(y < -type.getTopInset(rotation) || y + type.getDimension() - type.getBottomInset(rotation) >= ROW_COUNT) {
+		if(y < -type.getTopInset(rotation) || y + type.getDimension() 
+                        - type.getBottomInset(rotation) >= ROW_COUNT) {
 			return false;
 		}
 		
